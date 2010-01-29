@@ -1,110 +1,115 @@
 package Dancer::Session::Memcached;
 
-use warnings;
 use strict;
+use warnings;
+use vars '$VERSION';
+use base 'Dancer::Session::Abstract';
+
+use Cache::Memcached;
+use Dancer::Config 'setting';
+use Dancer::ModuleLoader;
+
+$VERSION = '0.1';
+
+# static
+
+# singleton for the Memcached hanlde
+my $MEMCACHED;
+
+sub init {
+    my ($class) = @_;
+
+    my $servers = setting("memcached_servers");
+    die "The setting memcached_servers must be defined"
+      unless defined $servers;
+    $servers = [split /,/, $servers];
+
+    # make sure the servers look good
+    foreach my $s (@$servers) {
+        if ($s =~ /^\d+\.\d+\.\d+\.\d+$/) {
+            die "server `$s' is invalid; port is missing, use `server:port'";
+        }
+    }
+
+    $MEMCACHED = Cache::Memcached->new(servers => $servers);
+}
+
+# create a new session and return the newborn object
+# representing that session
+sub create {
+    my ($class) = @_;
+    my $self = $class->new;
+    $MEMCACHED->set($self->id => $self);
+    return $self;
+}
+
+# Return the session object corresponding to the given id
+sub retrieve($$) {
+    my ($class, $id) = @_;
+    return $MEMCACHED->get($id);
+}
+
+# instance
+
+sub destroy {
+    my ($self) = @_;
+    $MEMCACHED->delete($self->id);
+}
+
+sub flush {
+    my $self = shift;
+    $MEMCACHED->set($self->id => $self);
+    return $self;
+}
+
+1;
+__END__
+
+=pod
 
 =head1 NAME
 
-Dancer::Session::Memcached - The great new Dancer::Session::Memcached!
+Dancer::Session::Memcache - Memcached-based session backend for L<Dancer>
 
-=head1 VERSION
+=head1 DESCRIPTION
 
-Version 0.01
+This module implements a session engine based on the Memcache API. Session are stored
+as memcache objects via a list of Memcached servers.
 
-=cut
+=head1 CONFIGURATION
 
-our $VERSION = '0.01';
+The setting B<session> should be set to C<memcached> in order to use this session
+engine in a Dancer application.
 
+A mandatory setting is needed as well: C<memcached_servers>, which should
+contain a comma-separated list of reachable memecached servers (can be either 
+address:port or sockets).
 
-=head1 SYNOPSIS
+Here is an example configuration that uses this session engine
 
-Quick summary of what the module does.
+    session: "memcached"
+    memcached_servers: "10.0.1.31:11211,10.0.1.32:11211,10.0.1.33:11211,/var/sock/memcached"
 
-Perhaps a little code snippet.
+=head1 DEPENDENCY
 
-    use Dancer::Session::Memcached;
-
-    my $foo = Dancer::Session::Memcached->new();
-    ...
-
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
-
-=head1 SUBROUTINES/METHODS
-
-=head2 function1
-
-=cut
-
-sub function1 {
-}
-
-=head2 function2
-
-=cut
-
-sub function2 {
-}
+This module depends on L<Cache::Memcached>.
 
 =head1 AUTHOR
 
-Alexis Sukrieh, C<< <sukria at sukria.net> >>
+This module has been written by Alexis Sukrieh.
 
-=head1 BUGS
+=head1 SEE ALSO
 
-Please report any bugs or feature requests to C<bug-dancer-session-memcached at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Dancer-Session-Memcached>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
+See L<Dancer::Session> for details about session usage in route handlers.
 
+=head1 COPYRIGHT
 
+This module is copyright (c) 2009-2010 Alexis Sukrieh <sukria@sukria.net>
 
+=head1 LICENSE
 
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc Dancer::Session::Memcached
-
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Dancer-Session-Memcached>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Dancer-Session-Memcached>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Dancer-Session-Memcached>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Dancer-Session-Memcached/>
-
-=back
-
-
-=head1 ACKNOWLEDGEMENTS
-
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2010 Alexis Sukrieh.
-
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See http://dev.perl.org/licenses/ for more information.
-
+This module is free software and is released under the same terms as Perl
+itself.
 
 =cut
-
-1; # End of Dancer::Session::Memcached
+1;
