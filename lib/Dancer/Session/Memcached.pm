@@ -18,7 +18,6 @@ my $MEMCACHED;
 
 sub init {
     my $self = shift;
-    $self->SUPER::init(@_);
 
     my $servers = setting("memcached_servers");
     die "The setting memcached_servers must be defined"
@@ -33,7 +32,8 @@ sub init {
     }
 
     $MEMCACHED = Cache::Memcached->new(servers => $servers);
-    Dancer::Logger::core("Initialised memcached sessions");
+
+    $self->SUPER::init(@_);
 }
 
 # create a new session and return the newborn object
