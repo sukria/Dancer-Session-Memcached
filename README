@@ -1,4 +1,0 @@
-Dancer::Session::Memcached
-
-This module implements a session engine based on the Memcache API. Session are
-stored as memcache objects via a list of Memcached servers.
