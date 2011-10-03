@@ -44,7 +44,7 @@ sub create {
 }
 
 # Return the session object corresponding to the given id
-sub retrieve($$) {
+sub retrieve($$) { ## no critic
     my ($class, $id) = @_;
     return $MEMCACHED->get($id);
 }
