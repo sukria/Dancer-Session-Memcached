@@ -1,15 +1,13 @@
-package Dancer::Session::Memcached;
-
 use strict;
 use warnings;
-use vars '$VERSION';
+package Dancer::Session::Memcached;
+# ABSTRACT: Memcached-based session backend for Dancer
+
 use base 'Dancer::Session::Abstract';
 
 use Cache::Memcached;
 use Dancer::Config 'setting';
 use Dancer::ModuleLoader;
-
-$VERSION = '0.1';
 
 # static
 
@@ -65,23 +63,20 @@ sub flush {
 }
 
 1;
+
 __END__
 
 =pod
 
-=head1 NAME
-
-Dancer::Session::Memcache - Memcached-based session backend for L<Dancer>
-
 =head1 DESCRIPTION
 
-This module implements a session engine based on the Memcache API. Session are stored
-as memcache objects via a list of Memcached servers.
+This module implements a session engine based on the Memcache API. Session are
+stored as memcache objects via a list of Memcached servers.
 
 =head1 CONFIGURATION
 
-The setting B<session> should be set to C<memcached> in order to use this session
-engine in a Dancer application.
+The setting B<session> should be set to C<memcached> in order to use this
+session engine in a Dancer application.
 
 A mandatory setting is needed as well: C<memcached_servers>, which should
 contain a comma-separated list of reachable memecached servers (can be either 
@@ -96,22 +91,7 @@ Here is an example configuration that uses this session engine
 
 This module depends on L<Cache::Memcached>.
 
-=head1 AUTHOR
-
-This module has been written by Alexis Sukrieh.
-
 =head1 SEE ALSO
 
 See L<Dancer::Session> for details about session usage in route handlers.
 
-=head1 COPYRIGHT
-
-This module is copyright (c) 2009-2010 Alexis Sukrieh <sukria@sukria.net>
-
-=head1 LICENSE
-
-This module is free software and is released under the same terms as Perl
-itself.
-
-=cut
-1;
