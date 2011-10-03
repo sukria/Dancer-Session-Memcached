@@ -1,5 +1,11 @@
 Revision history for Dancer-Session-Memcached
 
+0.200   03.10.11
+        * Fixing calling SUPER::init so it works with the new objects.
+        * Moving to Dist::Zilla.
+        * Changelog becomes useful. :)
+        * New co-maintainer: Sawyer X. FTW!
+
 0.01    Date/time
         First version, released on an unsuspecting world.
 
