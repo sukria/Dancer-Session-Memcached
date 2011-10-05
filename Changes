@@ -1,5 +1,8 @@
 Revision history for Dancer-Session-Memcached
 
+0.201   05.10.11
+        * Call SUPER::init on the beginning, not end.
+
 0.200   03.10.11
         * Fixing calling SUPER::init so it works with the new objects.
         * Moving to Dist::Zilla.
