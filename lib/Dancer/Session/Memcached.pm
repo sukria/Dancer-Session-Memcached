@@ -5,6 +5,7 @@ package Dancer::Session::Memcached;
 
 use base 'Dancer::Session::Abstract';
 
+use Carp;
 use Cache::Memcached;
 use Dancer::Config 'setting';
 use Dancer::ModuleLoader;
@@ -20,14 +21,14 @@ sub init {
     $self->SUPER::init(@_);
 
     my $servers = setting("memcached_servers");
-    die "The setting memcached_servers must be defined"
+    croak "The setting memcached_servers must be defined"
       unless defined $servers;
     $servers = [split /,/, $servers];
 
     # make sure the servers look good
     foreach my $s (@$servers) {
         if ($s =~ /^\d+\.\d+\.\d+\.\d+$/) {
-            die "server `$s' is invalid; port is missing, use `server:port'";
+            croak "server `$s' is invalid; port is missing, use `server:port'";
         }
     }
 
