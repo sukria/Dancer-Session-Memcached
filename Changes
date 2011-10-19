@@ -1,5 +1,8 @@
 Revision history for Dancer-Session-Memcached
 
+0.202   19.10.11
+        * Use Carp::croak instead of die(). (GH #2)
+
 0.201   05.10.11
         * Call SUPER::init on the beginning, not end.
 
