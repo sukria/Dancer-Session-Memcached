@@ -6,7 +6,6 @@ package Dancer::Session::Memcached;
 use base 'Dancer::Session::Abstract';
 
 use Carp;
-use Cache::Memcached;
 use Dancer::Config 'setting';
 use Dancer::ModuleLoader;
 
@@ -32,7 +31,11 @@ sub init {
         }
     }
 
-    $MEMCACHED = Cache::Memcached->new(servers => $servers);
+    my $backend_class = setting("memcached_backend") || 'Cache::Memcached';
+    eval "use $backend_class; 1;"
+        or croak "Error loading memcached backend '$backend_class'";
+
+    $MEMCACHED = $backend_class->new(servers => $servers);
 }
 
 # create a new session and return the newborn object
@@ -88,9 +91,19 @@ Here is an example configuration that uses this session engine
     session: "memcached"
     memcached_servers: "10.0.1.31:11211,10.0.1.32:11211,10.0.1.33:11211,/var/sock/memcached"
 
+Finally, you may also specify different memcached backends to use with the
+C<memcached_backend> setting. By default, this module uses
+L<Cache::Memcached> as a backend, but you may override this with any module
+that implements its interface, like L<Cache::Memcached::libmemcached> and
+L<Cache::Memcached::Fast::Safe>.
+
+    session "memcached"
+    memcached_servers: "10.0.1.31:11211,10.0.1.32:11211"
+    memcached_backend: 'Cache::Memcached::libmemcached'
+
 =head1 DEPENDENCY
 
-This module depends on L<Cache::Memcached>.
+This module depends on L<Cache::Memcached> (but see C<memcached_backend> above).
 
 =head1 SEE ALSO
 
